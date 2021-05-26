@@ -1,13 +1,12 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import './views/login.dart';
 import 'views/home.dart';
 
 class Nav {
-  static home(BuildContext context, User user) {
+  static home(BuildContext context) {
     Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) =>
-        HomePage(user:user)), (_) => false);
+        HomePage()), (_) => false);
   }
 
   static login(BuildContext context) {

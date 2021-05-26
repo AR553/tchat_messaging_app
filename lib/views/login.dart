@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:tchat_messaging_app/services/auth.dart';
+import 'package:tchat_messaging_app/services/database.dart';
 
 import '../nav.dart';
 
@@ -20,9 +21,13 @@ class LoginPage extends StatelessWidget {
           child: Container(
             child: ElevatedButton(
               onPressed: () async {
-                User user  = await Authentication.of(context).signInWithGoogle(context: context);
-                  if(user != null)
-                    Nav.home(context, user);
+                print('button just pressed.');
+                User user = await Authentication.of(context).signInWithGoogle(context: context);
+                print('signing in.');
+                if (user != null) {
+                  Database().storeUserData();
+                  Nav.home(context);
+                }
               },
               child: Row(
                 mainAxisSize: MainAxisSize.min,

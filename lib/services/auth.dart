@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:tchat_messaging_app/utilities/snack_bar.dart';
 
+import 'database.dart';
+
 class Authentication extends InheritedWidget {
   Authentication({this.child});
 
@@ -61,8 +63,10 @@ class Authentication extends InheritedWidget {
     final GoogleSignIn googleSignIn = GoogleSignIn();
 
     try {
+      Database().updateUserPresence(false);
       if (!kIsWeb) {
         await googleSignIn.signOut();
+        print('Signed out');
       }
       await FirebaseAuth.instance.signOut();
     } catch (e) {
