@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "995606103295",
+    "project_id": "tchat-messaging-app",
+    "storage_bucket": "tchat-messaging-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:995606103295:android:076f06a8b226c7b2bcb8ca",
+        "android_client_info": {
+          "package_name": "com.example.tchat_messaging_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "995606103295-4k5lras2n68n1cm6q79pubt2kald9f0s.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.tchat_messaging_app",
+            "certificate_hash": "b8050417b72d5078aeb0e7c2963411eab9f1754f"
+          }
+        },
+        {
+          "client_id": "995606103295-d02r63n290tg39c96cmdu1dr7uf88okm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBY2V757fKTfr7R2wBFdJoPnlnCEPeRKqE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "995606103295-d02r63n290tg39c96cmdu1dr7uf88okm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
