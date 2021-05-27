@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart' hide User;
 import 'package:flutter/material.dart';
 import 'package:tchat_messaging_app/models/user.dart';
 import 'package:tchat_messaging_app/services/auth.dart';
 import 'package:tchat_messaging_app/services/database.dart';
+import 'package:tchat_messaging_app/utilities/functions.dart';
 
 import '../nav.dart';
 
@@ -74,7 +76,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                   itemCount: snapshot.data.docs.length,
                   itemBuilder: (context, index) {
                     User user = User.fromJson(snapshot.data.docs[index].data());
-                    return PersonTile(user: user);
+                    if (user.uid == FirebaseAuth.instance.currentUser.uid)
+                      return Container();
+                    else
+                      return PersonTile(user: user);
                   },
                 );
               else
@@ -86,39 +91,20 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 }
 
 class PersonTile extends StatelessWidget {
-  const PersonTile({
+  PersonTile({
     Key key,
     @required this.user,
   }) : super(key: key);
 
   final User user;
+  final String myId = FirebaseAuth.instance.currentUser.uid;
 
-  String lastSeen(){
-    DateTime lastSeen =
-    DateTime.fromMillisecondsSinceEpoch(user.lastSeenInEpoch);
-    DateTime currentDateTime = DateTime.now();
-
-    Duration differenceDuration = currentDateTime.difference(lastSeen);
-    String durationString = differenceDuration.inSeconds > 59
-        ? differenceDuration.inMinutes > 59
-        ? differenceDuration.inHours > 23
-        ? '${differenceDuration.inDays} ${differenceDuration.inDays == 1 ? 'day' : 'days'}'
-        : '${differenceDuration.inHours} ${differenceDuration.inHours == 1 ? 'hour' : 'hours'}'
-        : '${differenceDuration.inMinutes} ${differenceDuration.inMinutes == 1 ? 'minute' : 'minutes'}'
-        : 'few moments';
-
-    String presenceString = user.presence ? 'Online' : '$durationString ago';
-    return presenceString;
-  }
-String camelcase(String name){
-    String n = '';
-    name.split(' ').forEach((word) => n+=word.substring(0,1).toUpperCase()+word.substring(1).toLowerCase()+" " );
-    return n;
-}
   @override
   Widget build(BuildContext context) {
+    final String chatId = Fns.getChatId(user.uid);
     return ListTile(
-        title: Text('${camelcase(user.name.split('-').last)}'),
+        onTap: () => Nav.chat(context, user),
+        title: Text('${Fns.camelcase(user.name.split('-').last)}'),
         subtitle: Text('${user.email}'),
         leading: Stack(
           alignment: Alignment.topLeft,
@@ -135,6 +121,49 @@ String camelcase(String name){
             ),
           ],
         ),
-        trailing: Text(lastSeen()));
+        trailing: SizedBox(
+          width: 97,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Container(child: Text(Fns.lastSeen(user.lastSeenInEpoch, user.presence), style: TextStyle(fontSize: 12),)),
+              StreamBuilder(
+                  stream: FirebaseFirestore.instance
+                      .collection('messages')
+                      .doc(chatId)
+                      .collection(chatId)
+                      .doc(myId)
+                      .snapshots(),
+                  builder: (context, AsyncSnapshot<DocumentSnapshot<Map>> snapshot) {
+                    if (snapshot.hasData) {
+
+                      int count = 0;
+                      var data = snapshot.data.data() ?? {};
+                      if (data.containsKey('unread_count')) {
+                        count = snapshot.data.data()['unread_count'];
+                      }
+                      if (count > 0)
+                        return Container(
+                          margin: EdgeInsets.only(right: 10),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(30),
+                            shape: BoxShape.rectangle,
+                            color: Colors.green,
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 1,horizontal: 8),
+                            child: Text('$count unread', style: TextStyle(color: Colors.white, fontSize: 16),),
+                          ),
+                        );
+                      else
+                        return Container();
+                    } else {
+                      return Container();
+                    }
+                  }),
+            ],
+          ),
+        ));
   }
 }
