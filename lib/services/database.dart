@@ -93,6 +93,20 @@ class Database {
       print('reset completed....');
     });
   }
+  void updateInChatStatus(String recipientId, bool inChat){
+    //recipientId not to be used elsewhere
+    String chatId = Fns.getChatId(recipientId);
+    String myId = FirebaseAuth.instance.currentUser.uid;
+    var documentReference = FirebaseFirestore.instance.collection('messages').doc(chatId).collection(chatId);
+    FirebaseFirestore.instance.runTransaction((transaction) async {
+      transaction.update(
+        documentReference.doc(myId),
+        {'in-chat': inChat},
+      );
+    }).whenComplete(() {
+      print('reset completed....');
+    });
+  }
 
   void updateTypingStatus(String chatId, bool isTyping) {
     String id = FirebaseAuth.instance.currentUser.uid;
