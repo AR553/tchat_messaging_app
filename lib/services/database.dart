@@ -1,15 +1,19 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' hide User;
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:tchat_messaging_app/models/message.dart';
 import 'package:tchat_messaging_app/models/user.dart';
 import 'package:tchat_messaging_app/utilities/functions.dart';
 
 class Database {
-  final CollectionReference userCollection = FirebaseFirestore.instance.collection('users');
+  static final CollectionReference _userCollection = FirebaseFirestore.instance.collection('users');
+  static final CollectionReference _messageCollection = FirebaseFirestore.instance.collection('messages');
 
   storeUserData() async {
     var u = FirebaseAuth.instance.currentUser;
-    DocumentReference documentReference = userCollection.doc(u.uid);
+    DocumentReference documentReference = _userCollection.doc(u.uid);
     User user = User(
       name: u.displayName,
       uid: u.uid,
@@ -22,11 +26,10 @@ class Database {
     await documentReference.set(data).whenComplete(() {
       print("User Data added to cloud firestore.");
     }).catchError((e) => print("Error firestore: $e"));
-
   }
 
   Stream<QuerySnapshot> retrieveUsers() {
-    Stream<QuerySnapshot> queryUsers = userCollection.orderBy('last_seen', descending: true).snapshots();
+    Stream<QuerySnapshot> queryUsers = _userCollection.orderBy('last_seen', descending: true).snapshots();
     return queryUsers;
   }
 
@@ -37,7 +40,7 @@ class Database {
     };
 
     var u = FirebaseAuth.instance.currentUser;
-    DocumentReference documentReference = userCollection.doc(u.uid);
+    DocumentReference documentReference = _userCollection.doc(u.uid);
     await documentReference.update(data).whenComplete(() {
       print("User Data updated to cloud firestore.");
     }).catchError((e) => print("Error firestore: $e"));
@@ -45,8 +48,30 @@ class Database {
 
   void onSendMessage(Message msg, String recipientId) {
     String chatId = Fns.getChatId(recipientId);
-    var documentReference = FirebaseFirestore.instance.collection('messages').doc(chatId).collection(chatId);
 
+    if (msg.type == MessageType.image) {
+      String imagePath = msg.content;
+      String fileName = msg.content.split('/').last;
+      File image = File(imagePath);
+      Reference reference = FirebaseStorage.instance.ref().child(fileName);
+      UploadTask uploadTask = reference.putFile(image);
+      TaskSnapshot taskSnapshot;
+      uploadTask.then((value) {
+        if (value != null) {
+          taskSnapshot = value;
+          taskSnapshot.ref.getDownloadURL().then((downloadUrl) {
+            msg = Message(
+              timestamp: msg.timestamp,
+              receiverId: msg.receiverId,
+              type: msg.type,
+              senderId: msg.senderId,
+              content: downloadUrl,
+            );
+          });
+        }
+      });
+    }
+    var documentReference = _messageCollection.doc(chatId).collection(chatId);
     FirebaseFirestore.instance.runTransaction((transaction) async {
       transaction.set(
         documentReference.doc(DateTime.now().millisecondsSinceEpoch.toString()),
@@ -82,7 +107,7 @@ class Database {
   void resetUnread(String recipientId) {
     String chatId = Fns.getChatId(recipientId);
     String myId = FirebaseAuth.instance.currentUser.uid;
-    var documentReference = FirebaseFirestore.instance.collection('messages').doc(chatId).collection(chatId);
+    var documentReference = _messageCollection.doc(chatId).collection(chatId);
 
     FirebaseFirestore.instance.runTransaction((transaction) async {
       transaction.update(
@@ -93,11 +118,12 @@ class Database {
       print('reset completed....');
     });
   }
+
   void updateInChatStatus(String recipientId, bool inChat){
     //recipientId not to be used elsewhere
     String chatId = Fns.getChatId(recipientId);
     String myId = FirebaseAuth.instance.currentUser.uid;
-    var documentReference = FirebaseFirestore.instance.collection('messages').doc(chatId).collection(chatId);
+    var documentReference = _messageCollection.doc(chatId).collection(chatId);
     FirebaseFirestore.instance.runTransaction((transaction) async {
       transaction.update(
         documentReference.doc(myId),
@@ -110,7 +136,7 @@ class Database {
 
   void updateTypingStatus(String chatId, bool isTyping) {
     String id = FirebaseAuth.instance.currentUser.uid;
-    var documentReference = FirebaseFirestore.instance.collection('messages').doc(chatId).collection(chatId).doc(id);
+    var documentReference = _messageCollection.doc(chatId).collection(chatId).doc(id);
     if (isTyping) updateUserPresence(true);
     FirebaseFirestore.instance.runTransaction((transaction) async {
       transaction.update(documentReference, {'typing_status': isTyping});
