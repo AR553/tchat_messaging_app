@@ -1,9 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' hide User;
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:tchat_messaging_app/models/message.dart';
 import 'package:tchat_messaging_app/models/user.dart';
 import 'package:tchat_messaging_app/services/auth.dart';
 import 'package:tchat_messaging_app/services/database.dart';
+import 'package:tchat_messaging_app/services/firestore.dart';
 import 'package:tchat_messaging_app/utilities/functions.dart';
 
 import '../nav.dart';
@@ -31,20 +34,20 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     switch (state) {
       case AppLifecycleState.resumed:
-        Database().updateUserPresence(true);
+        Firestore.updateUserPresence(true);
         print("app in resumed");
         break;
       case AppLifecycleState.inactive:
-        Database().updateUserPresence(true);
+        Firestore.updateUserPresence(true);
         print("app in inactive");
         break;
       case AppLifecycleState.paused:
-        Database().updateUserPresence(false);
+        Firestore.updateUserPresence(false);
 
         print("app in paused");
         break;
       case AppLifecycleState.detached:
-        Database().updateUserPresence(false);
+        Firestore.updateUserPresence(false);
         print("app in detached");
         break;
     }
@@ -58,7 +61,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         actions: [
           IconButton(
               onPressed: () {
-                Authentication.of(context).signOut(context: context).then((value) {
+                Authentication.signOut(context: context).then((value) {
                   Nav.login(context);
                 });
               },
@@ -67,7 +70,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       ),
       body: Center(
         child: StreamBuilder<QuerySnapshot>(
-            stream: Database().retrieveUsers(),
+            stream: Firestore.retrieveUsers(),
             builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
               if (snapshot.hasError)
                 return Center(child: Text(snapshot.error));
@@ -98,12 +101,22 @@ class PersonTile extends StatelessWidget {
 
   final User user;
   final String myId = FirebaseAuth.instance.currentUser.uid;
+  final AppDatabase database = Get.find(tag: 'database');
 
   @override
   Widget build(BuildContext context) {
     final String chatId = Fns.getChatId(user.uid);
     return ListTile(
-        onTap: () => Nav.chat(context, user),
+        onTap: () async {
+          Firestore.getMessages(chatId).then((value) {
+            value.docs.forEach((element) {
+              print(element.data());
+              print('/n');
+             database.messageDao.insertMessage(Message.fromJson(element.data()));
+            });
+          });
+          Nav.chat(context, user);
+        },
         title: Text('${Fns.camelcase(user.name.split('-').last)}'),
         subtitle: Text('${user.email}'),
         leading: Stack(

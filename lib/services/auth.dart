@@ -4,18 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:tchat_messaging_app/utilities/snack_bar.dart';
 
-import 'database.dart';
+import 'firestore.dart';
 
-class Authentication extends InheritedWidget {
-  Authentication({this.child});
-
-  final Widget child;
-
-  @override
-  bool updateShouldNotify(covariant InheritedWidget oldWidget) => true;
-
-  static Authentication of(BuildContext context) => context.dependOnInheritedWidgetOfExactType<Authentication>();
-  Future<User> signInWithGoogle({@required BuildContext context}) async {
+class Authentication {
+  static Future<User> signInWithGoogle({@required BuildContext context}) async {
     FirebaseAuth auth = FirebaseAuth.instance;
     User user;
     if (kIsWeb) {
@@ -59,11 +51,11 @@ class Authentication extends InheritedWidget {
     return user;
   }
 
-  Future<void> signOut({@required BuildContext context}) async {
+  static Future<void> signOut({@required BuildContext context}) async {
     final GoogleSignIn googleSignIn = GoogleSignIn();
 
     try {
-      Database().updateUserPresence(false);
+      Firestore.updateUserPresence(false);
       if (!kIsWeb) {
         await googleSignIn.signOut();
         print('Signed out');

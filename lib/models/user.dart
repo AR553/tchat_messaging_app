@@ -1,6 +1,10 @@
+import 'package:floor/floor.dart';
 import 'package:flutter/material.dart';
 
+@entity
 class User {
+  @primaryKey
+  int id;
   String uid;
   String name;
   bool presence;

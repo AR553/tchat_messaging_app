@@ -3,9 +3,11 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' hide User;
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:tchat_messaging_app/models/message.dart';
 import 'package:tchat_messaging_app/models/user.dart';
 import 'package:tchat_messaging_app/services/database.dart';
+import 'package:tchat_messaging_app/services/firestore.dart';
 import 'package:tchat_messaging_app/utilities/functions.dart';
 
 class ChatPage extends StatefulWidget {
@@ -20,16 +22,17 @@ class ChatPage extends StatefulWidget {
 class _ChatPageState extends State<ChatPage> {
   final myself = FirebaseAuth.instance.currentUser;
   final _messageController = TextEditingController();
+  final AppDatabase database = Get.find(tag: 'database');
 
   String chatId;
   int count;
 
   @override
   void initState() {
-    Database().resetUnread(widget.user.uid);
+    Firestore.resetUnread(widget.user.uid);
     chatId = Fns.getChatId(widget.user.uid);
     Timer.periodic(Duration(seconds: 5), (timer) {
-      Database().updateTypingStatus(chatId, false);
+      Firestore.updateTypingStatus(chatId, false);
     });
     super.initState();
   }
@@ -91,21 +94,15 @@ class _ChatPageState extends State<ChatPage> {
         children: <Widget>[
           Expanded(
             child: StreamBuilder(
-              stream: FirebaseFirestore.instance
-                  .collection('messages')
-                  .doc(chatId)
-                  .collection(chatId)
-                  .orderBy('timestamp', descending: true)
-                  .limit(10)
-                  .snapshots(),
-              builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+              stream: database.messageDao.getChatMessagesAsStream(chatId),
+              builder: (context, AsyncSnapshot<List<Message>> snapshot) {
                 if (snapshot.hasError) {
                   return Center(child: Text(snapshot.error));
                 } else if (snapshot.hasData) {
-                  List<QueryDocumentSnapshot> messages = snapshot.data.docs;
+                  List<Message> messages = snapshot.data;
                   return ListView.builder(
                     padding: EdgeInsets.all(10.0),
-                    itemBuilder: (context, index) => buildItem(messages[index], snapshot.data.docs[index]),
+                    itemBuilder: (context, index) => buildItem(messages[index]),
                     itemCount: messages.length,
                     reverse: true,
                   );
@@ -131,7 +128,7 @@ class _ChatPageState extends State<ChatPage> {
                         border: InputBorder.none),
                     onChanged: (value) {
                       value = value.trim();
-                        Database().updateTypingStatus(chatId, value.isNotEmpty);
+                        Firestore.updateTypingStatus(chatId, value.isNotEmpty);
                     },
                     onSubmitted: (value) {
                       send();
@@ -170,15 +167,15 @@ class _ChatPageState extends State<ChatPage> {
           timestamp: DateTime.now().millisecondsSinceEpoch);
       _messageController.clear();
 
-      Database().onSendMessage(msg, widget.user.uid);
+      Firestore.onSendMessage(msg, widget.user.uid);
     } else {
       //TODO
       // Fluttertoast.showToast(msg: 'Nothing to send');
     }
   }
 
-  Widget buildItem(QueryDocumentSnapshot msg, document) {
-    Message message = Message.fromJson(msg.data());
+  Widget buildItem(Message msg) {
+    Message message = msg/*Message.fromJson(msg.data())*/;
     return Container(
       padding: EdgeInsets.only(left: 14, right: 14, top: 10, bottom: 10),
       child: Align(
