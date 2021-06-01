@@ -25,6 +25,7 @@ class ChatPage extends StatefulWidget {
 class _ChatPageState extends State<ChatPage> {
   final myself = FirebaseAuth.instance.currentUser;
   final _messageController = TextEditingController();
+  Timer timer;
 
   Future<String> getFile(FileType fileType) async {
     FilePickerResult result = await FilePicker.platform.pickFiles(
@@ -46,10 +47,17 @@ class _ChatPageState extends State<ChatPage> {
   void initState() {
     Database().resetUnread(widget.user.uid);
     chatId = Fns.getChatId(widget.user.uid);
-    Timer.periodic(Duration(seconds: 5), (timer) {
+    Database().updateTypingStatus(chatId, false);
+    timer = Timer.periodic(Duration(seconds: 5), (timer) {
       Database().updateTypingStatus(chatId, false);
     });
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    timer.cancel();
+    super.dispose();
   }
 
   @override

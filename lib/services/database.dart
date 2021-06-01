@@ -147,7 +147,12 @@ class Database {
     var documentReference = _messageCollection.doc(chatId).collection(chatId).doc(id);
     if (isTyping) updateUserPresence(true);
     FirebaseFirestore.instance.runTransaction((transaction) async {
-      transaction.update(documentReference, {'typing_status': isTyping});
+      var data = await transaction.get(documentReference);
+      print(data.runtimeType);
+      if (data.data() == null)
+        transaction.set(documentReference, {'typing_status': isTyping});
+      else
+        transaction.update(documentReference, {'typing_status': isTyping});
     }).whenComplete(() => print('Typing status updated to: $isTyping'));
   }
 }

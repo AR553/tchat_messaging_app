@@ -79,7 +79,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                     if (user.uid == FirebaseAuth.instance.currentUser.uid)
                       return Container();
                     else
-                      return PersonTile(user: user);
+                      return ChatTile(user: user);
                   },
                 );
               else
@@ -90,8 +90,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 }
 
-class PersonTile extends StatelessWidget {
-  PersonTile({
+class ChatTile extends StatelessWidget {
+  ChatTile({
     Key key,
     @required this.user,
   }) : super(key: key);

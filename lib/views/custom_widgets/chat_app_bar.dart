@@ -48,7 +48,7 @@ class ChatAppBar extends AppBar {
               .snapshots(),
           builder: (context, AsyncSnapshot<DocumentSnapshot<Map<String, dynamic>>> snapshot) {
             if (snapshot.hasData) {
-              if (snapshot.data.data()['typing_status'])
+              if (snapshot.data.data()!=null && snapshot.data.data()['typing_status'])
                 return Text(
                   ' typing...',
                   style: TextStyle(fontSize: 14),
