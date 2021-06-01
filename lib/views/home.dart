@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' hide User;
 import 'package:flutter/material.dart';
+import 'package:tchat_messaging_app/models/message.dart';
 import 'package:tchat_messaging_app/models/user.dart';
 import 'package:tchat_messaging_app/services/auth.dart';
 import 'package:tchat_messaging_app/services/database.dart';
@@ -105,7 +106,17 @@ class ChatTile extends StatelessWidget {
     return ListTile(
         onTap: () => Nav.chat(context, user),
         title: Text('${Fns.camelcase(user.name.split('-').last)}'),
-        subtitle: Text('${user.email}'),
+        subtitle: FutureBuilder(
+          future: Database().getLastMessage(user.uid),
+          builder: (context,AsyncSnapshot<QuerySnapshot> snapshot) {
+            if(snapshot.hasData && snapshot.data.docs.isNotEmpty) {
+              Message msg = Message.fromJson(snapshot.data.docs[0].data());
+              return Text(msg??'');
+              } else {
+                return Container();
+              }
+            }
+        ),
         leading: Stack(
           alignment: Alignment.topLeft,
           children: [
