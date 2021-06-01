@@ -23,6 +23,8 @@ dependencies:
   full_screen_image: ^1.0.2
   video_viewer: ^1.2.2
   just_audio: ^0.7.5
+  get: ^4.1.4
+  adaptive_theme: ^2.2.0
 
 
 dev_dependencies:

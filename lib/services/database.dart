@@ -154,11 +154,7 @@ class Database {
     String chatId = Fns.getChatId(hisId);
     CollectionReference collectionReference =
         FirebaseFirestore.instance.collection('messages').doc(chatId).collection(chatId);
-    return await collectionReference
-        .orderBy('timestamp', descending: true)
-        .where('sender_id', isEqualTo: hisId)
-        .limit(1)
-        .get();
+    return await collectionReference.orderBy('timestamp', descending: true).limit(1).get();
   }
 
   void updateTypingStatus(String chatId, bool isTyping) {

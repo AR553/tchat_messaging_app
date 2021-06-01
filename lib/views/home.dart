@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart' hide User;
 import 'package:flutter/material.dart';
 import 'package:tchat_messaging_app/models/message.dart';
 import 'package:tchat_messaging_app/models/user.dart';
-import 'package:tchat_messaging_app/services/auth.dart';
 import 'package:tchat_messaging_app/services/database.dart';
 import 'package:tchat_messaging_app/utilities/functions.dart';
 
@@ -59,11 +58,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         actions: [
           IconButton(
               onPressed: () {
-                Authentication.of(context).signOut(context: context).then((value) {
-                  Nav.login(context);
-                });
+                Nav.setting(context);
               },
-              icon: Icon(Icons.logout))
+              icon: Icon(Icons.settings))
         ],
       ),
       body: Center(
@@ -110,8 +107,13 @@ class ChatTile extends StatelessWidget {
           future: Database().getLastMessage(user.uid),
           builder: (context,AsyncSnapshot<QuerySnapshot> snapshot) {
             if(snapshot.hasData && snapshot.data.docs.isNotEmpty) {
-              Message msg = Message.fromJson(snapshot.data.docs[0].data());
-              return Text(msg??'');
+                String msg = '';
+                Message lastMessage =Message.fromJson(snapshot.data.docs[0].data());
+                if(lastMessage.type == MessageType.text)
+                  msg = lastMessage.content??'';
+                else
+                  msg = '<${lastMessage.type}>';
+                return Text(msg);
               } else {
                 return Container();
               }
