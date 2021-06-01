@@ -48,11 +48,12 @@ class Database {
 
   void onSendMessage(Message msg, String recipientId) {
     String chatId = Fns.getChatId(recipientId);
+    var documentReference = _messageCollection.doc(chatId).collection(chatId);
 
-    if (msg.type == MessageType.image) {
-      String imagePath = msg.content;
+    if (msg.type != MessageType.text) {
+      String filePath = msg.content;
       String fileName = msg.content.split('/').last;
-      File image = File(imagePath);
+      File image = File(filePath);
       Reference reference = FirebaseStorage.instance.ref().child(fileName);
       UploadTask uploadTask = reference.putFile(image);
       TaskSnapshot taskSnapshot;
@@ -60,6 +61,7 @@ class Database {
         if (value != null) {
           taskSnapshot = value;
           taskSnapshot.ref.getDownloadURL().then((downloadUrl) {
+            print("download URL: " + downloadUrl);
             msg = Message(
               timestamp: msg.timestamp,
               receiverId: msg.receiverId,
@@ -67,17 +69,23 @@ class Database {
               senderId: msg.senderId,
               content: downloadUrl,
             );
+            FirebaseFirestore.instance.runTransaction((transaction) async {
+              transaction.set(
+                documentReference.doc(DateTime.now().millisecondsSinceEpoch.toString()),
+                msg.toJson(),
+              );
+            }).whenComplete(() => print('Message sent: ${msg.toJson()}'));
           });
         }
       });
+    } else {
+      FirebaseFirestore.instance.runTransaction((transaction) async {
+        transaction.set(
+          documentReference.doc(DateTime.now().millisecondsSinceEpoch.toString()),
+          msg.toJson(),
+        );
+      }).whenComplete(() => print('Message sent: ${msg.toJson()}'));
     }
-    var documentReference = _messageCollection.doc(chatId).collection(chatId);
-    FirebaseFirestore.instance.runTransaction((transaction) async {
-      transaction.set(
-        documentReference.doc(DateTime.now().millisecondsSinceEpoch.toString()),
-        msg.toJson(),
-      );
-    }).whenComplete(() => print('completed....'));
     int count = 0;
     FirebaseFirestore.instance.runTransaction((transaction) async {
       transaction
@@ -85,7 +93,7 @@ class Database {
         documentReference.doc(recipientId),
       )
           .then((value) {
-        print('data: ${value.data()}');
+        print('Got unread count: ${value.data()}');
         if (value.data().containsKey('unread_count')) count = value.data()['unread_count'];
         count++;
         FirebaseFirestore.instance.runTransaction((transaction) async {
@@ -94,7 +102,7 @@ class Database {
             {'unread_count': count},
           );
         }).whenComplete(() {
-          print('completed....$count');
+          print('Updated unread count to: $count');
         });
       });
     });
@@ -115,7 +123,7 @@ class Database {
         {'unread_count': 0},
       );
     }).whenComplete(() {
-      print('reset completed....');
+      print('Unread count reset');
     });
   }
 
@@ -130,7 +138,7 @@ class Database {
         {'in-chat': inChat},
       );
     }).whenComplete(() {
-      print('reset completed....');
+      print('Updating');
     });
   }
 
@@ -140,6 +148,6 @@ class Database {
     if (isTyping) updateUserPresence(true);
     FirebaseFirestore.instance.runTransaction((transaction) async {
       transaction.update(documentReference, {'typing_status': isTyping});
-    }).whenComplete(() => print('completed....'));
+    }).whenComplete(() => print('Typing status updated to: $isTyping'));
   }
 }

@@ -17,6 +17,13 @@ dependencies:
   cached_network_image: ^3.0.0
   image_picker: ^0.7.5+3
   firebase_storage: ^8.1.0
+  connectivity: ^3.0.6
+  file_picker: ^3.0.2+2
+  custom_pop_up_menu: ^1.2.0
+  full_screen_image: ^1.0.2
+  video_viewer: ^1.2.2
+  just_audio: ^0.7.5
+
 
 dev_dependencies:
   flutter_test:
