@@ -2,6 +2,7 @@ import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'package:tchat_messaging_app/models/app_theme.dart';
 import 'package:tchat_messaging_app/services/auth.dart';
@@ -12,6 +13,7 @@ class SettingsPage extends StatelessWidget {
   SettingsPage({Key key}) : super(key: key);
   final user = FirebaseAuth.instance.currentUser;
   final AppTheme appTheme = Get.find();
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = Get.find();
 
   @override
   Widget build(BuildContext context) {
