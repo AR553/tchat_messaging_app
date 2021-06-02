@@ -55,8 +55,12 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 100,
-        title: Container(
-            child: Text("TChat")),
+        flexibleSpace: Align(
+          alignment: Alignment.bottomLeft,
+          child: Container(
+            padding: EdgeInsets.all(20),
+              child: Text("TChat Messaging", style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),)),
+        ),
         actions: [
           Align(
             alignment: Alignment.topCenter,

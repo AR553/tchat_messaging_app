@@ -22,4 +22,9 @@ class Nav {
   static setting(BuildContext context) {
     Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsPage()));
   }
+
+  static pop(BuildContext context) {
+    Navigator.pop(context);
+  }
+
 }
