@@ -17,13 +17,15 @@ class User {
     @required this.email,
   });
 
-  User.fromJson(Map<String, dynamic> json) {
-    uid = json['uid'];
-    name = json['name'];
-    presence = json['presence'];
-    photoURL = json['photo_url'];
-    lastSeenInEpoch = json['last_seen'];
-    email = json['email'];
+  static User fromJson(Map<String, dynamic> json) {
+    return User(
+      uid: json['uid'],
+      name: json['name'],
+      presence: json['presence'],
+      photoURL: json['photo_url'],
+      lastSeenInEpoch: json['last_seen'],
+      email: json['email'],
+    );
   }
 
   Map<String, dynamic> toJson() {

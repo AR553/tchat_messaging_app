@@ -13,16 +13,15 @@ class LoginPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          SvgPicture.asset('assets/login.svg'),
+          SvgPicture.asset('assets/login.svg',placeholderBuilder: (context) => CircularProgressIndicator(),),
           SizedBox(height: 30),
           Center(
             child: Container(
               child: ElevatedButton(
                 onPressed: () async {
-                  print('button just pressed.');
                   User user = await Authentication.of(context).signInWithGoogle(context: context);
-                  print('signing in.');
                   if (user != null) {
                     Database().storeUserData();
                     Nav.home(context);

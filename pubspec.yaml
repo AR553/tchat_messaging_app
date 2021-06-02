@@ -29,7 +29,6 @@ dependencies:
   firebase_crashlytics: ^2.0.4
   flutter_svg: ^0.22.0
 
-
 dev_dependencies:
   flutter_test:
     sdk: flutter
