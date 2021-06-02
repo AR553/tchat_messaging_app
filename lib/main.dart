@@ -18,13 +18,21 @@ Future<void> main() async {
   await Firebase.initializeApp();
   bool isLoggedIn = FirebaseAuth.instance.currentUser != null;
   if (isLoggedIn) Database().storeUserData();
-  FirebaseMessaging.onBackgroundMessage((event) async {
-    print('data 2: ${event.data}');
-    _MyAppState.sendNotification(event);
-  });
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   if (!kIsWeb) Get.put(FlutterLocalNotificationsPlugin());
-
   runApp(MyApp());
+}
+
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage event) async {
+  await Firebase.initializeApp();
+
+  var android = AndroidNotificationDetails('0', 'firebase', "Test notification",
+      priority: Priority.high, importance: Importance.max);
+  var iOS = IOSNotificationDetails();
+  var platform = new NotificationDetails(android: android, iOS: iOS);
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = Get.find();
+  await flutterLocalNotificationsPlugin.show(0, event.notification.title, event.notification.body, platform);
+  print("Handling a background message: ${event.messageId}");
 }
 
 class MyApp extends StatefulWidget {
@@ -49,7 +57,6 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     print('wow......................');
     super.initState();
-
     var initializationSettingsAndroid = AndroidInitializationSettings('flutter_devs');
     var initializationSettingsIOs = IOSInitializationSettings();
     var initSettings = InitializationSettings(android: initializationSettingsAndroid, iOS: initializationSettingsIOs);
@@ -60,6 +67,7 @@ class _MyAppState extends State<MyApp> {
         return true;
       });
     }
+
     FirebaseMessaging.onMessage.listen((RemoteMessage event) async {
       print('data: ${event.data}');
       print('msgType: ${event.messageType}');
@@ -89,7 +97,7 @@ class _MyAppState extends State<MyApp> {
             scaffoldBackgroundColor: Colors.blueGrey[500]),
         builder: (light, dark) => GetMaterialApp(
           debugShowCheckedModeBanner: false,
-          title: 'TCat Messaging',
+          title: 'TChat Messaging',
           home: isLoggedIn ? HomePage() : LoginPage(),
           darkTheme: dark,
           theme: light,
