@@ -4,7 +4,7 @@ class Fns {
   static String camelcase(String name) {
     String n = '';
     name.split(' ').forEach((word) => n += word.substring(0, 1).toUpperCase() + word.substring(1).toLowerCase() + " ");
-    return n;
+    return n.substring(0, n.length - 1);
   }
 
   static

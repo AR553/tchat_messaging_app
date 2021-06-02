@@ -55,9 +55,8 @@ class _MyAppState extends State<MyApp> {
 
   @override
   void initState() {
-    print('wow......................');
     super.initState();
-    var initializationSettingsAndroid = AndroidInitializationSettings('flutter_devs');
+    var initializationSettingsAndroid = AndroidInitializationSettings('ic_launcher');
     var initializationSettingsIOs = IOSInitializationSettings();
     var initSettings = InitializationSettings(android: initializationSettingsAndroid, iOS: initializationSettingsIOs);
     if(!kIsWeb){

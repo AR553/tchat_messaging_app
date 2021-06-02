@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:custom_pop_up_menu/custom_pop_up_menu.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart' hide User;
 import 'package:flutter/material.dart';
@@ -38,6 +37,7 @@ class _ChatPageState extends State<ChatPage> {
       return null;
   }
 
+  bool attachMedia = false;
   String chatId;
   int count;
 
@@ -102,60 +102,30 @@ class _ChatPageState extends State<ChatPage> {
               color: Colors.white,
               child: Row(
                 children: <Widget>[
-                  Container(
-                    height: 30,
-                    width: 30,
-                    decoration: BoxDecoration(
-                      color: Colors.lightBlue,
-                      borderRadius: BorderRadius.circular(30),
+                  FloatingActionButton(
+                    onPressed: () => setState(() {
+                      attachMedia = !attachMedia;
+                    }),
+                    child: Icon(
+                      attachMedia ? Icons.close : Icons.attach_file,
+                      color: attachMedia ? Colors.blue : Colors.white,
+                      size: 18,
                     ),
-                    child: CustomPopupMenu(
-                      showArrow: false,
-                      barrierColor: Colors.transparent,
-                      child: Icon(
-                        Icons.add,
-                        color: Colors.white,
-                        size: 20,
-                      ),
-                      menuBuilder: () => Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          color: Colors.grey,
-                        ),
-                        child: Column(
-                          children: [
-                            IconButton(
-                              icon: Icon(Icons.image),
-                              onPressed: () {
-                                getFile(FileType.image).then((value) => send(value, MessageType.image));
-                              },
-                            ),
-                            IconButton(
-                              icon: Icon(Icons.mic),
-                              onPressed: () {
-                                getFile(FileType.audio).then((value) => send(value, MessageType.audio));
-                              },
-                            ),
-                            IconButton(
-                              icon: Icon(Icons.video_call),
-                              onPressed: () {
-                                getFile(FileType.video).then((value) => send(value, MessageType.video));
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                      pressType: PressType.singleClick,
-                    ),
+                    backgroundColor: attachMedia ? Colors.grey[300] : Colors.blue,
+                    elevation: 0,
                   ),
                   SizedBox(width: 15),
                   Expanded(
                     child: TextField(
                       controller: _messageController,
                       decoration: InputDecoration(
-                          hintText: "Write message...",
-                          hintStyle: TextStyle(color: Colors.black54),
-                          border: InputBorder.none),
+                        hintText: "Write message...",
+                        hintStyle: TextStyle(color: Colors.black54),
+                        border:
+                            OutlineInputBorder(borderSide: BorderSide.none, borderRadius: BorderRadius.circular(25)),
+                        filled: true,
+                        fillColor: Colors.grey[300],
+                      ),
                       onChanged: (value) {
                         value = value.trim();
                         Database().updateTypingStatus(chatId, value.isNotEmpty);
@@ -179,6 +149,20 @@ class _ChatPageState extends State<ChatPage> {
                 ],
               ),
             ),
+            if (attachMedia)
+              Container(
+                  padding: EdgeInsets.only(top: 5.0),
+                  color: Colors.white,
+                  height: 90,
+                  child: Center(
+                    child: Row(
+                      children: [
+                        _buildAttachItem(FileType.image, Icons.image),
+                        _buildAttachItem(FileType.audio, Icons.mic),
+                        _buildAttachItem(FileType.video, Icons.video_call),
+                      ],
+                    ),
+                  )),
           ],
         ),
       ),
@@ -186,8 +170,8 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void send(String content, String type) {
-    content = content.trim();
-    if (content.isNotEmpty) {
+    if (content != null && content.trim().isNotEmpty) {
+      content = content.trim();
       var message = Message(
           content: content,
           senderId: myself.uid,
@@ -198,11 +182,36 @@ class _ChatPageState extends State<ChatPage> {
       if (type == MessageType.text) _messageController.clear();
 
       Database().onSendMessage(message, widget.user.uid);
+      setState(() {
+        attachMedia = false;
+      });
     } else {
       //TODO
       // Fluttertoast.showToast(msg: 'Nothing to send');
     }
   }
+
+  Widget _buildAttachItem(FileType fileType, IconData icon) {
+    String messageType = fileType.toString().replaceFirst('FileType.', '');
+    Color color = Colors.blueAccent[700];
+    if (messageType == MessageType.audio)
+      color = Colors.purpleAccent[700];
+    else if (messageType == MessageType.video) color = Colors.orangeAccent[700];
+    return Expanded(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          FloatingActionButton(
+            backgroundColor: color,
+            onPressed: () {
+              getFile(fileType).then((value) => send(value, messageType));
+            },
+            child: Icon(icon, color: Colors.white),
+          ),
+          SizedBox(height: 10),
+          Text(Fns.camelcase(messageType))
+        ],
+      ),
+    );
+  }
 }
-
-
