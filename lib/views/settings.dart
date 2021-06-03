@@ -73,8 +73,11 @@ class SettingsPage extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text(Fns.camelcase(user.displayName.split('-').last), style: TextStyle(fontSize: 20)),
-                            Text(user.email),
+                            Text(
+                              Fns.camelcase(user.displayName.split('-').last),
+                              style: Theme.of(context).textTheme.bodyText1.copyWith(fontSize: 20),
+                            ),
+                            Text(user.email, style: Theme.of(context).textTheme.bodyText1),
                           ],
                         ),
                       ),
@@ -88,7 +91,7 @@ class SettingsPage extends StatelessWidget {
                 child: Column(
                   children: [
                     ListTile(
-                      title: Text('Theme'),
+                      title: Text('Theme', style: Theme.of(context).textTheme.bodyText1),
                       trailing: DropdownButton(
                         value: appTheme.mode,
                         onChanged: (value) {
@@ -99,15 +102,16 @@ class SettingsPage extends StatelessWidget {
                             AdaptiveTheme.of(context).setLight();
                           else if (value == ThemeMode.dark) AdaptiveTheme.of(context).setDark();
                         },
+                        dropdownColor: Theme.of(context).scaffoldBackgroundColor,
                         items: [
-                          DropdownMenuItem(child: Text('System '), value: ThemeMode.system),
-                          DropdownMenuItem(child: Text('Light '), value: ThemeMode.light),
-                          DropdownMenuItem(child: Text('Dark '), value: ThemeMode.dark),
+                          DropdownMenuItem(child: Text('System ', style: Theme.of(context).textTheme.bodyText1), value: ThemeMode.system),
+                          DropdownMenuItem(child: Text('Light ', style: Theme.of(context).textTheme.bodyText1), value: ThemeMode.light),
+                          DropdownMenuItem(child: Text('Dark ', style: Theme.of(context).textTheme.bodyText1), value: ThemeMode.dark),
                         ],
                       ),
                     ),
                     ListTile(
-                      title: Text('Logout'),
+                      title: Text('Logout', style: Theme.of(context).textTheme.bodyText1),
                       onTap: () {
                         Nav.login(context);
                         Authentication.of(context).signOut(context: context);
