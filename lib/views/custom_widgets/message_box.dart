@@ -171,6 +171,8 @@ class ImageMessageBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      width: MediaQuery.of(context).size.width * .4,
+      height: MediaQuery.of(context).size.width * .4,
       child: Material(
         child: Image.network(url),
         borderRadius: BorderRadius.all(Radius.circular(8.0)),

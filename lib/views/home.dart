@@ -87,7 +87,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                   if (user.uid == FirebaseAuth.instance.currentUser.uid)
                     return Container();
                   else
-                    return Divider(indent: 50,endIndent: 50,height: 0,);
+                    return Divider(indent: 50,endIndent: 50,height: 1,color: Theme.of(context).textTheme.bodyText1.color,);
                   },
                 );
               } else

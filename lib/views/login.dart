@@ -12,11 +12,11 @@ class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
-    Widget illustration = SvgPicture.asset(
+    Widget illustration = FittedBox(child:SvgPicture.asset(
       'assets/login.svg',
       placeholderBuilder: (context) => CircularProgressIndicator(),
-      fit: BoxFit.contain,
-    );
+      fit: BoxFit.scaleDown,
+    ));
     Orientation orientation = MediaQuery.of(context).orientation;
     return Scaffold(
       body: orientation == Orientation.landscape
@@ -55,15 +55,17 @@ class LoginPage extends StatelessWidget {
                 ),
               ),
           )
-          : Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text('TChat Messaging App', style: Theme.of(context).textTheme.bodyText1.copyWith(fontSize: 30),),
-                illustration,
-                SizedBox(height: 30),
-                GoogleSignInButton(),
-              ],
-            ),
+          : Container(
+            height: MediaQuery.of(context).size.height,
+            child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Text('TChat Messaging App', style: Theme.of(context).textTheme.bodyText1.copyWith(fontSize: 30),),
+                  illustration,
+                  GoogleSignInButton(),
+                ],
+              ),
+          ),
     );
   }
 }
