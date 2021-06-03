@@ -1,4 +1,5 @@
-import 'dart:io';
+import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' hide User;
@@ -51,11 +52,10 @@ class Database {
     var documentReference = _messageCollection.doc(chatId).collection(chatId);
 
     if (msg.type != MessageType.text) {
-      String filePath = msg.content;
+      Uint8List fileBytes = base64Decode(msg.content);
       String fileName = msg.content.split('/').last;
-      File image = File(filePath);
       Reference reference = FirebaseStorage.instance.ref().child(fileName);
-      UploadTask uploadTask = reference.putFile(image);
+      UploadTask uploadTask = reference.putData(fileBytes);
       TaskSnapshot taskSnapshot;
       uploadTask.then((value) {
         if (value != null) {

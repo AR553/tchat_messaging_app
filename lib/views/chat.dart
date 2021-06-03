@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
@@ -26,20 +28,18 @@ class _ChatPageState extends State<ChatPage> {
   final _messageController = TextEditingController();
 
   Future<String> getFile(FileType fileType) async {
-    FilePickerResult result = await FilePicker.platform.pickFiles(
-        type: fileType,
-        withData: true,
-        allowCompression: true,
-        onFileLoading: (status) => Center(child: Text('Loading')));
-    if (result != null)
-      return result.paths.first;
-    else
+    FilePickerResult result = await FilePicker.platform
+        .pickFiles(type: fileType, withData: true, allowCompression: true, onFileLoading: (status) => Center(child: Text('Loading')));
+    if (result != null) {
+      Uint8List fileBytes = result.files.first.bytes;
+      return base64Encode(fileBytes);
+    } else {
       return null;
+    }
   }
 
   bool attachMedia = false;
   String chatId;
-  int count;
 
   @override
   void initState() {
@@ -103,6 +103,7 @@ class _ChatPageState extends State<ChatPage> {
               child: Row(
                 children: <Widget>[
                   FloatingActionButton(
+                    heroTag: null,
                     onPressed: () => setState(() {
                       attachMedia = !attachMedia;
                     }),
@@ -137,6 +138,7 @@ class _ChatPageState extends State<ChatPage> {
                   ),
                   SizedBox(width: 15),
                   FloatingActionButton(
+                    heroTag: null,
                     onPressed: () => send(_messageController.text, MessageType.text),
                     child: Icon(
                       Icons.send,
@@ -202,6 +204,7 @@ class _ChatPageState extends State<ChatPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           FloatingActionButton(
+            heroTag: null,
             backgroundColor: color,
             onPressed: () {
               getFile(fileType).then((value) => send(value, messageType));

@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' hide User;
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import './custom_widgets/chat_tile.dart';
+import '../models/app_theme.dart';
 import '../models/user.dart';
 import '../nav.dart';
 import '../services/database.dart';
@@ -50,26 +52,19 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     }
   }
 
+  final AppTheme appTheme = Get.find();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        toolbarHeight: 100,
-        flexibleSpace: Align(
-          alignment: Alignment.bottomLeft,
-          child: Container(
-            padding: EdgeInsets.all(20),
-              child: Text("TChat Messaging", style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),)),
-        ),
+        title: Text("TChat Messaging"),
         actions: [
-          Align(
-            alignment: Alignment.topCenter,
-            child: IconButton(
-                onPressed: () {
-                  Nav.setting(context);
-                },
-                icon: Icon(Icons.settings)),
-          )
+          IconButton(
+              onPressed: () {
+                Nav.setting(context);
+              },
+              icon: Icon(Icons.settings))
         ],
       ),
       body: Center(

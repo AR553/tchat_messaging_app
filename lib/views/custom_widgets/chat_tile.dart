@@ -24,7 +24,10 @@ class ChatTile extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 15.0),
       child: ListTile(
           onTap: () => Nav.chat(context, user),
-          title: Text('${Fns.camelcase(user.name.split('-').last)}'),
+          title: Text(
+            '${Fns.camelcase(user.name.split('-').last)}',
+            style: Theme.of(context).textTheme.bodyText1,
+          ),
           subtitle: FutureBuilder(
               future: Database().getLastMessage(user.uid),
               builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -35,7 +38,10 @@ class ChatTile extends StatelessWidget {
                     msg = lastMessage.content ?? '';
                   else
                     msg = '<${lastMessage.type}>';
-                  return Text(msg);
+                  return Text(
+                    msg,
+                    style: Theme.of(context).textTheme.bodyText1.copyWith(fontSize: 12),
+                  );
                 } else {
                   return Container();
                 }
@@ -64,7 +70,7 @@ class ChatTile extends StatelessWidget {
                 Container(
                     child: Text(
                   Fns.lastSeen(user.lastSeenInEpoch, user.presence),
-                  style: TextStyle(fontSize: 12),
+                  style: Theme.of(context).textTheme.bodyText1.copyWith(fontSize: 12),
                 )),
                 StreamBuilder(
                     stream: FirebaseFirestore.instance

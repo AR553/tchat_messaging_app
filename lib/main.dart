@@ -42,7 +42,6 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   final bool isLoggedIn = FirebaseAuth.instance.currentUser != null;
-  final appTheme = Get.put(AppTheme());
 
   static void sendNotification(RemoteMessage event) async {
     var android = AndroidNotificationDetails('0', 'firebase', "Test notification",
@@ -86,22 +85,37 @@ class _MyAppState extends State<MyApp> {
       child: AdaptiveTheme(
         initial: AdaptiveThemeMode.system,
         light: ThemeData(
+          textTheme: TextTheme(
+            bodyText1: TextStyle(color: Colors.black),
+          ),
+          appBarTheme: AppBarTheme(
+              textTheme: TextTheme(headline6: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.black54)),
+              iconTheme: IconThemeData(color: Colors.black54)),
           primaryColor: Colors.blueGrey[300],
           accentColor: Colors.grey,
           scaffoldBackgroundColor: Colors.grey[200],
         ),
         dark: ThemeData(
+            textTheme: TextTheme(
+              bodyText1: TextStyle(color: Colors.white),
+            ),
+            appBarTheme: AppBarTheme(
+                textTheme: TextTheme(headline6: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white70)),
+                iconTheme: IconThemeData(color: Colors.white70)),
             primaryColor: Colors.blueGrey[900],
             accentColor: Colors.grey,
             scaffoldBackgroundColor: Colors.blueGrey[500]),
-        builder: (light, dark) => GetMaterialApp(
+        builder: (light, dark) {
+          final appTheme = Get.put(AppTheme());
+          return GetMaterialApp(
           debugShowCheckedModeBanner: false,
           title: 'TChat Messaging',
           home: isLoggedIn ? HomePage() : LoginPage(),
           darkTheme: dark,
           theme: light,
           themeMode: appTheme.mode,
-        ),
+        );
+        },
       ),
     );
   }

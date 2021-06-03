@@ -14,12 +14,10 @@ dependencies:
   google_sign_in: ^5.0.3
   cloud_firestore: ^2.2.0
   font_awesome_flutter: ^9.0.0
-  cached_network_image: ^3.0.0
   image_picker: ^0.7.5+3
   firebase_storage: ^8.1.0
   connectivity: ^3.0.6
   file_picker: ^3.0.2+2
-  full_screen_image: ^1.0.2
   video_viewer: ^1.2.2
   just_audio: ^0.7.5
   get: ^4.1.4
@@ -28,6 +26,7 @@ dependencies:
   flutter_local_notifications: ^6.0.0
   firebase_crashlytics: ^2.0.4
   flutter_svg: ^0.22.0
+  shared_preferences: ^2.0.6
 
 dev_dependencies:
   flutter_test:

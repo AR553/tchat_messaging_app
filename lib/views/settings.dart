@@ -17,23 +17,10 @@ class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
-    print(width);
-    print(width * .7);
     return Scaffold(
       appBar: AppBar(
-        toolbarHeight: 100,
-        leading: Align(
-          alignment: Alignment.topLeft,
-          child: IconButton(icon: Icon(Icons.arrow_back), onPressed: () => Nav.pop(context)),
-        ),
-        flexibleSpace: Align(
-          alignment: Alignment.bottomLeft,
-          child: Container(
-              padding: EdgeInsets.all(20),
-              child: Text(
-                "Settings",
-                style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-              )),
+        title: Text(
+          "Settings"
         ),
       ),
       body: SingleChildScrollView(
@@ -44,7 +31,7 @@ class SettingsPage extends StatelessWidget {
                 width: width <= 400 ? width * .7 : 400,
                 height: width <= 300 ? width * .7 : 300,
                 decoration: BoxDecoration(
-                  image: DecorationImage(image: NetworkImage(user.photoURL), fit: BoxFit.cover),
+                  image: DecorationImage(image: Image.network(user.photoURL).image, fit: BoxFit.cover),
                 ),
                 child: Container(
                   decoration: BoxDecoration(

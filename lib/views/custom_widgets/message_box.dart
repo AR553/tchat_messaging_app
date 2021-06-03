@@ -1,9 +1,7 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:full_screen_image/full_screen_image.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:tchat_messaging_app/models/message.dart';
 import 'package:video_viewer/video_viewer.dart';
@@ -22,7 +20,7 @@ class MessageBox extends StatelessWidget {
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
-            color: (message.receiverId == myId ? Colors.grey.shade200 : Colors.blue[200]),
+            color: (message.receiverId == myId ? Colors.blueGrey.shade200 : Colors.blue[200]),
           ),
           padding: EdgeInsets.all(16),
           child: message.type == MessageType.text
@@ -173,28 +171,9 @@ class ImageMessageBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: FullScreenWidget(
-        child: Material(
-          child: CachedNetworkImage(
-            placeholder: (context, _) => Container(
-              child: CircularProgressIndicator(),
-              width: 200.0,
-              height: 200.0,
-              padding: EdgeInsets.all(70.0),
-            ),
-            errorWidget: (context, url, error) => Material(
-              child: Center(child: Text('Image cannot be opened.\n$error', textAlign: TextAlign.center)),
-              borderRadius: BorderRadius.all(
-                Radius.circular(8.0),
-              ),
-            ),
-            imageUrl: url,
-            width: 200.0,
-            height: 200.0,
-            fit: BoxFit.scaleDown,
-          ),
-          borderRadius: BorderRadius.all(Radius.circular(8.0)),
-        ),
+      child: Material(
+        child: Image.network(url),
+        borderRadius: BorderRadius.all(Radius.circular(8.0)),
       ),
     );
   }
